@@ -7,23 +7,24 @@ import (
 	"strings"
 )
 
-var getGoroutineID func() uint64
+var getGoroutineID func() int64
 
 func init() {
-	SetGetGoroutineIDFunc(func() uint64 {
+	SetGetGoroutineIDFunc(func() int64 {
 		buf := make([]byte, 64)
 		buf = buf[0:runtime.Stack(buf, false)]
 		index := bytes.Index(buf, []byte{'['})
 		buf = buf[0:index]
 		buf = bytes.TrimLeft(buf, "goroutine")
 		buf = bytes.TrimSpace(buf)
-		gid, _ := strconv.ParseUint(string(buf), 10, 64)
+		gid, _ := strconv.ParseInt(string(buf), 10, 64)
 		return gid
 	})
 }
 
 // SetGetGoroutineIDFunc to set how to get goroutine id.
-func SetGetGoroutineIDFunc(f func() uint64) {
+// e.g.: SetGetGoroutineIDFunc(goid.Get) from github.com/petermattis/goid
+func SetGetGoroutineIDFunc(f func() int64) {
 	if f != nil {
 		getGoroutineID = f
 	}
@@ -37,7 +38,7 @@ func getCaller(minimumCallerDepth int) *runtime.Frame {
 
 	for f, more := frames.Next(); more; f, more = frames.Next() {
 		// If the caller isn't part of this package, we're done
-		if !strings.Contains(f.Function, "github.com/berkaroad/detectlock-go.") {
+		if !strings.Contains(f.Function, "github.com/meha555/detectlock-go.") {
 			return &f //nolint:scopelint
 		}
 	}

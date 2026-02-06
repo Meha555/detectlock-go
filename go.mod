@@ -1,3 +1,3 @@
-module github.com/berkaroad/detectlock-go
+module github.com/meha555/detectlock-go
 
 go 1.16

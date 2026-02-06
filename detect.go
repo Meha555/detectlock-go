@@ -21,13 +21,14 @@ func DisableDebug() {
 }
 
 // DetectAcquired detect goroutine that locker acquired.
-func DetectAcquired(items map[uint64]LockerStateList) GoroutineLockerList {
+func DetectAcquired(items map[int64]LockerStateList) GoroutineLockerList {
 	l := make(GoroutineLockerList, 0)
 	for gid, lockers := range items {
 		lockerAcquired := false
 		for _, locker := range lockers {
 			if locker.Status == StatusAcquired {
 				lockerAcquired = true
+				break
 			}
 		}
 		if lockerAcquired {
@@ -39,7 +40,7 @@ func DetectAcquired(items map[uint64]LockerStateList) GoroutineLockerList {
 }
 
 // DetectLockedEachOther detect goroutine that locked each other.
-func DetectLockedEachOther(items map[uint64]LockerStateList) GoroutineLockerList {
+func DetectLockedEachOther(items map[int64]LockerStateList) GoroutineLockerList {
 	l := make(GoroutineLockerList, 0)
 	for gid, lockers := range items {
 		sortedLockers := make(LockerStateList, len(lockers))
@@ -61,7 +62,7 @@ func DetectLockedEachOther(items map[uint64]LockerStateList) GoroutineLockerList
 						waitByOtherGID := false
 						lockerAcquiredByOtherGID := false
 						for _, olocker := range olockers {
-							if olocker.LockerPtr == locker.LockerPtr && olocker.Status == StatusWait && !olocker.RLocker {
+							if olocker.LockerPtr == locker.LockerPtr && olocker.Status == StatusWaitting && !olocker.RLocker {
 								waitByOtherGID = true
 							}
 							if olocker.Status == StatusAcquired {
@@ -96,7 +97,7 @@ func DetectLockedEachOther(items map[uint64]LockerStateList) GoroutineLockerList
 }
 
 // DetectReentry detect goroutine that reentry locker occurred.
-func DetectReentry(items map[uint64]LockerStateList) GoroutineLockerList {
+func DetectReentry(items map[int64]LockerStateList) GoroutineLockerList {
 	l := make(GoroutineLockerList, 0)
 	for gid, lockers := range items {
 		sortedLockers := make(LockerStateList, len(lockers))
@@ -125,7 +126,7 @@ func DetectReentry(items map[uint64]LockerStateList) GoroutineLockerList {
 
 // GoroutineLocker goroutine with lockers.
 type GoroutineLocker struct {
-	GoroutineID uint64
+	GoroutineID int64
 	Lockers     LockerStateList
 }
 

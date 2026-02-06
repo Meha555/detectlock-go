@@ -19,7 +19,7 @@ func acquire(lockerPtr uintptr, rLocker bool, doLock func()) {
 		} else {
 			lockers = make([]*LockerState, 0, 16)
 		}
-		locker = &LockerState{LockerPtr: lockerPtr, Status: StatusWait, RLocker: rLocker}
+		locker = &LockerState{LockerPtr: lockerPtr, Status: StatusWaitting, RLocker: rLocker}
 		lockers = append(lockers, locker)
 		mapShard.items[gid] = lockers
 	}()

@@ -14,8 +14,12 @@ goroutine的锁信息记录，采用分片锁，降低了多线程并发竞争�
 
 ```go
 import (
-    "github.com/berkaroad/detectlock-go"
+    "github.com/meha555/detectlock-go"
+    "github.com/petermattis/goid"
 )
+
+// 可以选择自定义的获取goroutine ID的函数
+detectlock.SetGetGoroutineIDFunc(goid.Get)
 
 // 应用启动时，设置启用调试
 detectlock.EnableDebug()
@@ -46,7 +50,7 @@ detectlock.DisableDebug()
 
     获得Mutex锁，或RWMutex写锁。
 
-  - wait
+  - waitting
 
     等待Mutex锁，或等待RWMutex写锁。
 
@@ -54,7 +58,7 @@ detectlock.DisableDebug()
 
     获得RWMutex读锁。
 
-  - r-wait
+  - r-waitting
 
     等待RWMutex读锁。
 
@@ -76,12 +80,12 @@ detectlock.DisableDebug()
 
 ```plain
 --- DetectAcquired ---
-goroutine 29: [(0xc0000b4008, acquired, main.B (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex01/main.go:30)), (0xc0000b4000, wait, main.B (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex01/main.go:33))]
-goroutine 30: [(0xc0000b4000, acquired, main.A (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex01/main.go:20)), (0xc0000b4008, wait, main.A (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex01/main.go:23))]
+goroutine 29: [(0xc0000b4008, acquired, main.B (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:30)), (0xc0000b4000, waitting, main.B (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:33))]
+goroutine 30: [(0xc0000b4000, acquired, main.A (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:20)), (0xc0000b4008, waitting, main.A (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:23))]
 
 --- DetectLockedEachOther ---
-goroutine 29: [(0xc0000b4008, acquired, main.B (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex01/main.go:30)), (0xc0000b4000, wait, main.B (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex01/main.go:33))]
-goroutine 30: [(0xc0000b4000, acquired, main.A (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex01/main.go:20)), (0xc0000b4008, wait, main.A (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex01/main.go:23))]
+goroutine 29: [(0xc0000b4008, acquired, main.B (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:30)), (0xc0000b4000, waitting, main.B (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:33))]
+goroutine 30: [(0xc0000b4000, acquired, main.A (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:20)), (0xc0000b4008, waitting, main.A (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:23))]
 
 ```
 
@@ -89,10 +93,10 @@ goroutine 30: [(0xc0000b4000, acquired, main.A (file: /home/berkaroad/github/ber
 
 ```plain
 --- DetectAcquired ---
-goroutine 53: [(0xc0000160b8, acquired, main.C (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex02/main.go:19)), (0xc0000160b8, wait, main.C (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex02/main.go:22))]
+goroutine 53: [(0xc0000160b8, acquired, main.C (file: /home/meha555/github/meha555/detectlock-go/examples/mutex02/main.go:19)), (0xc0000160b8, waitting, main.C (file: /home/meha555/github/meha555/detectlock-go/examples/mutex02/main.go:22))]
 
 --- DetectReentry ---
-goroutine 53: [(0xc0000160b8, acquired, main.C (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex02/main.go:19)), (0xc0000160b8, wait, main.C (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex02/main.go:22))]
+goroutine 53: [(0xc0000160b8, acquired, main.C (file: /home/meha555/github/meha555/detectlock-go/examples/mutex02/main.go:19)), (0xc0000160b8, waitting, main.C (file: /home/meha555/github/meha555/detectlock-go/examples/mutex02/main.go:22))]
 
 ```
 
@@ -100,28 +104,28 @@ goroutine 53: [(0xc0000160b8, acquired, main.C (file: /home/berkaroad/github/ber
 
 ```plain
 --- DetectAcquired ---
-goroutine 8: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 10: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 13: [(0xc0000160b8, acquired, main.E (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:30)), (0xc0000180c0, wait, main.E (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:33))]
-goroutine 14: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 16: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 50: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 52: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 54: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 56: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 58: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 8: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 10: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 13: [(0xc0000160b8, acquired, main.E (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:30)), (0xc0000180c0, waitting, main.E (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:33))]
+goroutine 14: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 16: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 50: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 52: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 54: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 56: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 58: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
 
 --- DetectLockedEachOther ---
-goroutine 8: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 10: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 13: [(0xc0000160b8, acquired, main.E (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:30)), (0xc0000180c0, wait, main.E (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:33))]
-goroutine 14: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 16: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 50: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 52: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 54: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 56: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
-goroutine 58: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, wait, main.D (file: /home/berkaroad/github/berkaroad/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 8: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 10: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 13: [(0xc0000160b8, acquired, main.E (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:30)), (0xc0000180c0, waitting, main.E (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:33))]
+goroutine 14: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 16: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 50: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 52: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 54: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 56: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
+goroutine 58: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
 
 ```
 
@@ -130,7 +134,7 @@ goroutine 58: [(0xc0000180c0, r-acquired, main.D (file: /home/berkaroad/github/b
 通过对 `启用调试` 、`禁用调试` 、 `原生` 的锁操作的性能对比，`启用调试` 模式下性能比较差，因此不适合用于生产环境。而对于 `禁用调试` 、 `原生` 的对比，性能损耗相差无几。
 
 ```sh
-make go-bench
+make bench
 ```
 
 ```plain

@@ -7,11 +7,11 @@ import (
 	"sync"
 )
 
-const shardCount uint64 = 1 << 16
+const shardCount int64 = 1 << 16
 
 // Status of locker.
 const (
-	StatusWait     byte = iota // wait or r-wait
+	StatusWaitting byte = iota // wait or r-wait
 	StatusAcquired             // acquired or r-acquired
 )
 
@@ -27,7 +27,7 @@ type LockerState struct {
 
 // String of LockerState, format: (<locker-id>, <locker-status>)
 func (l LockerState) String() string {
-	status := "wait"
+	status := "waitting"
 	if l.Status == StatusAcquired {
 		status = "acquired"
 	}
@@ -76,8 +76,8 @@ func (l LockerStateList) String() string {
 }
 
 // Items of goroutine that use locker.
-func Items() map[uint64]LockerStateList {
-	items := make(map[uint64]LockerStateList)
+func Items() map[int64]LockerStateList {
+	items := make(map[int64]LockerStateList)
 	for _, mapShard := range cache {
 		func() {
 			defer mapShard.locker.Unlock()
@@ -98,7 +98,7 @@ type cacheMap []*cacheMapShard
 
 type cacheMapShard struct {
 	locker sync.RWMutex
-	items  map[uint64][]*LockerState
+	items  map[int64][]*LockerState
 }
 
 func clear() {
@@ -107,8 +107,8 @@ func clear() {
 
 func reset() {
 	cache = make(cacheMap, shardCount)
-	var i uint64 = 0
+	var i int64 = 0
 	for ; i < shardCount; i++ {
-		cache[i] = &cacheMapShard{items: make(map[uint64][]*LockerState)}
+		cache[i] = &cacheMapShard{items: make(map[int64][]*LockerState)}
 	}
 }
