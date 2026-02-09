@@ -17,9 +17,9 @@ else
 endif
 
 examples:
-	go build -o mutex01$(EXE_SUFFIX) ./examples/mutex01/
-	go build -o mutex02$(EXE_SUFFIX) ./examples/mutex02/
-	go build -o mutex03$(EXE_SUFFIX) ./examples/mutex03/
+	go build -o waiting_on_eachother$(EXE_SUFFIX) ./examples/waiting_on_eachother/
+	go build -o reentry$(EXE_SUFFIX) ./examples/reentry/
+	go build -o rwlock$(EXE_SUFFIX) ./examples/rwlock/
 
 clean:
 	rm -f mutex01$(EXE_SUFFIX)

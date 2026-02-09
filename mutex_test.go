@@ -12,7 +12,7 @@ func BenchmarkMutex_Lock(b *testing.B) {
 	}
 
 	b.Run("EnableDebug", func(b *testing.B) {
-		EnableDebug()
+		Enable()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			func() {
@@ -26,7 +26,7 @@ func BenchmarkMutex_Lock(b *testing.B) {
 	})
 
 	b.Run("DisableDebug", func(b *testing.B) {
-		DisableDebug()
+		Disable()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			func() {
@@ -63,7 +63,7 @@ func BenchmarkMutex_TryLock(b *testing.B) {
 	}
 
 	b.Run("EnableDebug", func(b *testing.B) {
-		EnableDebug()
+		Enable()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			func() {
@@ -77,7 +77,7 @@ func BenchmarkMutex_TryLock(b *testing.B) {
 	})
 
 	b.Run("DisableDebug", func(b *testing.B) {
-		DisableDebug()
+		Disable()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			func() {
@@ -108,7 +108,7 @@ func BenchmarkMutex_TryLock(b *testing.B) {
 }
 
 func TestMutex_Lock(t *testing.T) {
-	EnableDebug()
+	Enable()
 	t.Run("lock once success", func(t *testing.T) {
 		l := &Mutex{}
 		l.Lock()
@@ -124,7 +124,7 @@ func TestMutex_Lock(t *testing.T) {
 }
 
 func TestMutex_TryLock(t *testing.T) {
-	EnableDebug()
+	Enable()
 	t.Run("try-lock once success", func(t *testing.T) {
 		l := &Mutex{}
 		if !l.TryLock() {
@@ -142,7 +142,7 @@ func TestMutex_TryLock(t *testing.T) {
 }
 
 func TestMutex_Unlock(t *testing.T) {
-	EnableDebug()
+	Enable()
 	t.Run("unlock once success", func(t *testing.T) {
 		l := &Mutex{}
 		counter := 0

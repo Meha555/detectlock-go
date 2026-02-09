@@ -23,7 +23,7 @@ func C() {
 }
 
 func main() {
-	detectlock.EnableDebug()
+	detectlock.Enable()
 	for i := 0; i < 10; i++ {
 		go C()
 	}
@@ -33,7 +33,7 @@ func main() {
 	go func() {
 		time.Sleep(time.Second * 2)
 
-		items := detectlock.Items()
+		items := detectlock.Records()
 
 		fmt.Println("--- DetectAcquired ---")
 		fmt.Println(detectlock.DetectAcquired(items))
@@ -47,7 +47,7 @@ func main() {
 		//fmt.Println(string(b))
 		// fmt.Println("------- end --------")
 
-		detectlock.DisableDebug()
+		detectlock.Disable()
 		wg.Done()
 	}()
 	wg.Wait()

@@ -30,10 +30,10 @@ func SetGetGoroutineIDFunc(f func() int64) {
 	}
 }
 
-func getCaller(minimumCallerDepth int) *runtime.Frame {
+func getCaller(skip int) *runtime.Frame {
 	// Restrict the lookback frames to avoid runaway lookups
 	pcs := make([]uintptr, 10)
-	depth := runtime.Callers(minimumCallerDepth, pcs)
+	depth := runtime.Callers(skip, pcs)
 	frames := runtime.CallersFrames(pcs[:depth])
 
 	for f, more := frames.Next(); more; f, more = frames.Next() {

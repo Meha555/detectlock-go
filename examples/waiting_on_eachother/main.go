@@ -15,6 +15,7 @@ func init() {
 	Locker1 = &detectlock.Mutex{}
 	Locker2 = &detectlock.Mutex{}
 }
+
 func A() {
 	defer Locker1.Unlock()
 	Locker1.Lock()
@@ -36,33 +37,27 @@ func B() {
 }
 
 func main() {
-	detectlock.EnableDebug()
+	detectlock.Enable()
 	for i := 0; i < 10; i++ {
 		go A()
 		go B()
 	}
 
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		time.Sleep(time.Second * 2)
+	time.Sleep(time.Second * 2)
 
-		items := detectlock.Items()
+	records := detectlock.Records()
 
-		fmt.Println("--- DetectAcquired ---")
-		fmt.Println(detectlock.DetectAcquired(items))
+	fmt.Println("--- DetectAcquired ---")
+	fmt.Println(detectlock.DetectAcquired(records))
 
-		fmt.Println("--- DetectLockedEachOther ---")
-		fmt.Println(detectlock.DetectLockedEachOther(items))
+	fmt.Println("--- DetectWaitingOnEachOther ---")
+	fmt.Println(detectlock.DetectWaitingOnEachOther(records))
 
-		// fmt.Println("--- all stack ---")
-		// b := make([]byte, 102400)
-		// b = b[:runtime.Stack(b, true)]
-		//fmt.Println(string(b))
-		// fmt.Println("------- end --------")
+	// fmt.Println("--- all stack ---")
+	// b := make([]byte, 102400)
+	// b = b[:runtime.Stack(b, true)]
+	//fmt.Println(string(b))
+	// fmt.Println("------- end --------")
 
-		detectlock.DisableDebug()
-		wg.Done()
-	}()
-	wg.Wait()
+	detectlock.Disable()
 }

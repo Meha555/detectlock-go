@@ -7,6 +7,7 @@ import (
 	"sync"
 )
 
+// 分桶数量
 const shardCount int64 = 1 << 16
 
 // Status of locker.
@@ -15,13 +16,14 @@ const (
 	StatusAcquired             // acquired or r-acquired
 )
 
-var cache cacheMap
+// 链地址法分片哈希的locker state桶，分片依据和键是goroutine id。
+var buckets cacheBuckets
 
 // LockerState the state of locker.
 type LockerState struct {
 	LockerPtr uintptr
 	Status    byte
-	RLocker   bool
+	RLocker   bool // is read lock or not
 	Caller    *runtime.Frame
 }
 
@@ -75,17 +77,18 @@ func (l LockerStateList) String() string {
 	return sb.String()
 }
 
-// Items of goroutine that use locker.
-func Items() map[int64]LockerStateList {
+// 获取参与锁竞争的goroutine的LockerState
+// 非并发安全
+func Records() map[int64]LockerStateList {
 	items := make(map[int64]LockerStateList)
-	for _, mapShard := range cache {
+	for _, bucket := range buckets {
 		func() {
-			defer mapShard.locker.Unlock()
-			mapShard.locker.Lock()
-			for k, v := range mapShard.items {
+			defer bucket.locker.Unlock()
+			bucket.locker.Lock()
+			for k, v := range bucket.items {
 				lockers := make(LockerStateList, len(v))
 				for i := 0; i < len(v); i++ {
-					lockers[i] = *v[i]
+					lockers[i] = *v[i] // 值拷贝，因此这里不会受其他协程修改锁状态的影响（只需要确保Items调用时进行加锁）
 				}
 				items[k] = lockers
 			}
@@ -94,21 +97,21 @@ func Items() map[int64]LockerStateList {
 	return items
 }
 
-type cacheMap []*cacheMapShard
+type cacheBuckets []*cacheBucket
 
-type cacheMapShard struct {
+type cacheBucket struct {
 	locker sync.RWMutex
 	items  map[int64][]*LockerState
 }
 
 func clear() {
-	cache = make(cacheMap, shardCount)
+	buckets = make(cacheBuckets, shardCount)
 }
 
 func reset() {
-	cache = make(cacheMap, shardCount)
+	buckets = make(cacheBuckets, shardCount)
 	var i int64 = 0
 	for ; i < shardCount; i++ {
-		cache[i] = &cacheMapShard{items: make(map[int64][]*LockerState)}
+		buckets[i] = &cacheBucket{items: make(map[int64][]*LockerState)}
 	}
 }

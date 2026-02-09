@@ -12,7 +12,7 @@ func BenchmarkRWMutex_RLock(b *testing.B) {
 	}
 
 	b.Run("EnableDebug", func(b *testing.B) {
-		EnableDebug()
+		Enable()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			func() {
@@ -26,7 +26,7 @@ func BenchmarkRWMutex_RLock(b *testing.B) {
 	})
 
 	b.Run("DisableDebug", func(b *testing.B) {
-		DisableDebug()
+		Disable()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			func() {
@@ -63,7 +63,7 @@ func BenchmarkRWMutex_TryRLock(b *testing.B) {
 	}
 
 	b.Run("EnableDebug", func(b *testing.B) {
-		EnableDebug()
+		Enable()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			func() {
@@ -77,7 +77,7 @@ func BenchmarkRWMutex_TryRLock(b *testing.B) {
 	})
 
 	b.Run("DisableDebug", func(b *testing.B) {
-		DisableDebug()
+		Disable()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			func() {
@@ -114,7 +114,7 @@ func BenchmarkRWMutex_Lock(b *testing.B) {
 	}
 
 	b.Run("EnableDebug", func(b *testing.B) {
-		EnableDebug()
+		Enable()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			func() {
@@ -128,7 +128,7 @@ func BenchmarkRWMutex_Lock(b *testing.B) {
 	})
 
 	b.Run("DisableDebug", func(b *testing.B) {
-		DisableDebug()
+		Disable()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			func() {
@@ -165,7 +165,7 @@ func BenchmarkRWMutex_TryLock(b *testing.B) {
 	}
 
 	b.Run("EnableDebug", func(b *testing.B) {
-		EnableDebug()
+		Enable()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			func() {
@@ -179,7 +179,7 @@ func BenchmarkRWMutex_TryLock(b *testing.B) {
 	})
 
 	b.Run("DisableDebug", func(b *testing.B) {
-		DisableDebug()
+		Disable()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			func() {

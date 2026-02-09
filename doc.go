@@ -6,17 +6,17 @@
 //
 // 2) replace "var locker *sync.RWMutex = &sync.RWMutex{}" to "var locker *detectlock.RWMutex = &detectlock.RWMutex{}"
 //
-// 2. enable debug on startup
+// 2. enable detection on startup
 //
-// detectlock.EnableDebug()" or disable it by "detectlock.DisableDebug()"
+// detectlock.Enable()" or disable it by "detectlock.Disable()"
 //
 // 3. detect dead locker
 //
-// items := detectlock.Items()
+// records := detectlock.Records()
 //
-// detect reentry locker: "detectlock.DetectReentry(items)"
+// detect reentry locker: "detectlock.DetectReentry(records)"
 //
-// detect locked each other: "detectlock.DetectLockedEachOther(items)"
+// detect locked each other: "detectlock.DetectWaitingOnEachOther(records)"
 //
-// detect acquired owners: "detectlock.DetectAcquired(items)"
+// detect acquired owners: "detectlock.DetectAcquired(records)"
 package detectlock

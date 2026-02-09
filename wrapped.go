@@ -1,57 +1,67 @@
 package detectlock
 
+// acquire lock
+// lockerPtr: uintptr of locker
+// rLocker: is read lock?
+// doLock: implementation of lock operation
 func acquire(lockerPtr uintptr, rLocker bool, doLock func()) {
 	if doLock == nil {
 		return
 	}
 
+	// locate a shard
 	gid := getGoroutineID()
 	shardKey := gid % shardCount
-	mapShard := cache[shardKey]
+	bucket := buckets[shardKey]
 	var locker *LockerState
 
 	func() {
-		defer mapShard.locker.Unlock()
-		mapShard.locker.Lock()
+		defer bucket.locker.Unlock()
+		bucket.locker.Lock()
 		var lockers []*LockerState
-		if exists, ok := mapShard.items[gid]; ok {
+		if exists, ok := bucket.items[gid]; ok {
 			lockers = exists
 		} else {
 			lockers = make([]*LockerState, 0, 16)
 		}
 		locker = &LockerState{LockerPtr: lockerPtr, Status: StatusWaitting, RLocker: rLocker}
 		lockers = append(lockers, locker)
-		mapShard.items[gid] = lockers
+		bucket.items[gid] = lockers
 	}()
 
 	locker.Caller = getCaller(4)
-	doLock()
+	doLock() // 无条件执行
+	// 修改上锁状态必须在doLock之后
 	locker.Status = StatusAcquired
 }
 
+// try acquire lock
+// lockerPtr: uintptr of locker
+// rLocker: is read lock?
+// tryLock: implementation of try lock operation
 func tryAcquire(lockerPtr uintptr, rLocker bool, tryLock func() bool) bool {
 	if tryLock == nil {
 		return false
 	}
-
+	// 无条件执行
 	if tryLock() {
 		gid := getGoroutineID()
 		shardKey := gid % shardCount
-		mapShard := cache[shardKey]
+		bucket := buckets[shardKey]
 		var locker *LockerState
 
 		func() {
-			defer mapShard.locker.Unlock()
-			mapShard.locker.Lock()
+			defer bucket.locker.Unlock()
+			bucket.locker.Lock()
 			var lockers []*LockerState
-			if exists, ok := mapShard.items[gid]; ok {
+			if exists, ok := bucket.items[gid]; ok {
 				lockers = exists
 			} else {
 				lockers = make([]*LockerState, 0, 16)
 			}
 			locker = &LockerState{LockerPtr: lockerPtr, Status: StatusAcquired, RLocker: rLocker}
 			lockers = append(lockers, locker)
-			mapShard.items[gid] = lockers
+			bucket.items[gid] = lockers
 		}()
 
 		locker.Caller = getCaller(4)
@@ -61,22 +71,29 @@ func tryAcquire(lockerPtr uintptr, rLocker bool, tryLock func() bool) bool {
 	}
 }
 
+// release lock
+// lockerPtr: uintptr of locker
+// rLocker: is read lock?
+// doUnlock: implementation of unlock operation
 func release(lockerPtr uintptr, rLocker bool, doUnlock func()) {
 	if doUnlock == nil {
 		return
 	}
+	// 无条件执行
 	doUnlock()
 
 	gid := getGoroutineID()
 	shardKey := gid % shardCount
-	mapShard := cache[shardKey]
+	bucket := buckets[shardKey]
 
-	defer mapShard.locker.Unlock()
-	mapShard.locker.Lock()
-	if lockers, ok := mapShard.items[gid]; ok {
+	defer bucket.locker.Unlock()
+	bucket.locker.Lock()
+	if lockers, ok := bucket.items[gid]; ok {
 		removeIndex := -1
-		for i := 0; i < len(lockers); i++ {
+		llen := len(lockers)
+		for i := 0; i < llen; i++ {
 			l := lockers[i]
+			// 这里要确保是正确的解锁逻辑，这样一旦实际程序使用的方式错误，发生了死锁之类的问题，这里就会没有真正完成解锁，于是就能发现问题
 			if l.LockerPtr == lockerPtr && l.Status == StatusAcquired && l.RLocker == rLocker {
 				removeIndex = i
 				break
@@ -85,16 +102,16 @@ func release(lockerPtr uintptr, rLocker bool, doUnlock func()) {
 		if removeIndex < 0 {
 			return
 		}
-		llen := len(lockers)
+		// 从切片中移除remoteIndex对应的locker
 		if llen == 1 {
 			lockers = nil
 		} else {
 			lockers = append(lockers[:removeIndex], lockers[removeIndex+1:]...)
 		}
 		if len(lockers) == 0 {
-			delete(mapShard.items, gid)
+			delete(bucket.items, gid)
 		} else {
-			mapShard.items[gid] = lockers
+			bucket.items[gid] = lockers
 		}
 	}
 }

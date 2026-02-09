@@ -10,6 +10,14 @@ goroutine的锁信息记录，采用分片锁，降低了多线程并发竞争�
 
 - 支持 启用 / 禁用 调试功能。
 
+## 原理
+
+封装标准库 `sync.Mutex` 和 `sync.RWMutex` 的替代品，内部记录上锁和解锁动作。在用户需要查看“死锁”情况时，检查内部记录的上锁和解锁动作的调用情况。
+
+具体说来：
+
+
+
 ## 用法
 
 ```go
@@ -32,7 +40,7 @@ var locker2 *detectlock.RWMutex = &detectlock.RWMutex{}
 items := detectlock.Items()
 fmt.Println(detectlock.DetectAcquired(items)) // 检测获得锁的goroutine列表
 fmt.Println(detectlock.DetectReentry(items)) // 检测锁重入的goroutine列表
-fmt.Println(detectlock.DetectLockedEachOther(items)) // 检测互锁的goroutine列表
+fmt.Println(detectlock.DetectWaitingOnEachOther(items)) // 检测互锁的goroutine列表
 
 // 关闭调试，并清理锁使用信息
 detectlock.DisableDebug()
@@ -83,7 +91,7 @@ detectlock.DisableDebug()
 goroutine 29: [(0xc0000b4008, acquired, main.B (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:30)), (0xc0000b4000, waitting, main.B (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:33))]
 goroutine 30: [(0xc0000b4000, acquired, main.A (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:20)), (0xc0000b4008, waitting, main.A (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:23))]
 
---- DetectLockedEachOther ---
+--- DetectWaitingOnEachOther ---
 goroutine 29: [(0xc0000b4008, acquired, main.B (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:30)), (0xc0000b4000, waitting, main.B (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:33))]
 goroutine 30: [(0xc0000b4000, acquired, main.A (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:20)), (0xc0000b4008, waitting, main.A (file: /home/meha555/github/meha555/detectlock-go/examples/mutex01/main.go:23))]
 
@@ -115,7 +123,7 @@ goroutine 54: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meh
 goroutine 56: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
 goroutine 58: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
 
---- DetectLockedEachOther ---
+--- DetectWaitingOnEachOther ---
 goroutine 8: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
 goroutine 10: [(0xc0000180c0, r-acquired, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:21)), (0xc0000160b8, waitting, main.D (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:24))]
 goroutine 13: [(0xc0000160b8, acquired, main.E (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:30)), (0xc0000180c0, waitting, main.E (file: /home/meha555/github/meha555/detectlock-go/examples/mutex03/main.go:33))]
