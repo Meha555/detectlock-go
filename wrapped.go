@@ -1,13 +1,16 @@
 package detectlock
 
+import "log"
+
 // acquire lock
 // lockerPtr: uintptr of locker
 // rLocker: is read lock?
 // doLock: implementation of lock operation
 func acquire(lockerPtr uintptr, rLocker bool, doLock func()) {
 	if doLock == nil {
-		return
+		panic("doLock is nil")
 	}
+	log.Printf("trace> lock %#x acquiring", lockerPtr)
 
 	// locate a shard
 	gid := getGoroutineID()
@@ -30,9 +33,12 @@ func acquire(lockerPtr uintptr, rLocker bool, doLock func()) {
 	}()
 
 	locker.Caller = getCaller(4)
+
 	doLock() // 无条件执行
 	// 修改上锁状态必须在doLock之后
 	locker.Status = StatusAcquired
+	log.Printf("trace> lock %#x acquired ✔", lockerPtr)
+	// log.Println(locker.String())
 }
 
 // try acquire lock
@@ -41,8 +47,10 @@ func acquire(lockerPtr uintptr, rLocker bool, doLock func()) {
 // tryLock: implementation of try lock operation
 func tryAcquire(lockerPtr uintptr, rLocker bool, tryLock func() bool) bool {
 	if tryLock == nil {
-		return false
+		panic("tryLock is nil")
 	}
+	log.Printf("trace> lock %#x try-acquiring", lockerPtr)
+
 	// 无条件执行
 	if tryLock() {
 		gid := getGoroutineID()
@@ -77,8 +85,10 @@ func tryAcquire(lockerPtr uintptr, rLocker bool, tryLock func() bool) bool {
 // doUnlock: implementation of unlock operation
 func release(lockerPtr uintptr, rLocker bool, doUnlock func()) {
 	if doUnlock == nil {
-		return
+		panic("doUnlock is nil")
 	}
+	log.Printf("trace> lock %#x releasing", lockerPtr)
+
 	// 无条件执行
 	doUnlock()
 

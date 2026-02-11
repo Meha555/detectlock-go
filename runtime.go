@@ -2,9 +2,11 @@ package detectlock
 
 import (
 	"bytes"
+	"io"
 	"runtime"
 	"strconv"
 	"strings"
+	_ "unsafe"
 )
 
 var getGoroutineID func() int64
@@ -21,6 +23,9 @@ func init() {
 		return gid
 	})
 }
+
+//go:linkname SetDebugOutput log.SetOutput
+func SetDebugOutput(w io.Writer)
 
 // SetGetGoroutineIDFunc to set how to get goroutine id.
 // e.g.: SetGetGoroutineIDFunc(goid.Get) from github.com/petermattis/goid
